@@ -43,22 +43,42 @@ def file_save():
     if len(website_entry.get()) == 0 or len(password_entry.get()) == 0:
         messagebox.askretrycancel(title="You have left it open", message="lmao bro")
     else:
-        is_ok = messagebox.askokcancel(title=website_entry.get(), message=f"These are the details entered :\n "
-                                                              f"{email_entry.get()}"
-                                                              f"\nPassword: {password_entry.get()}\n "
-                                                              f"Is it okay to save?")
 
-        if is_ok == True:
-            with open("passwords.json", mode="r") as files:
-                data = json.load(files)
-                data.update(new_data)
-            with open("passwords.json", mode="w") as files:
-                json.dump(data, files, indent=4)
+        try:
+            with open("data.json", "r") as data_file:
+                # Reading old data
+                data = json.load(data_file)
+        except FileNotFoundError:
+            with open("data.json", "w") as data_file:
+                json.dump(new_data, data_file, indent=4)
+        else:
+            # Updating old data with new data
+            data.update(new_data)
+
+            with open("data.json", "w") as data_file:
+                # Saving updated data
+                json.dump(data, data_file, indent=4)
+        finally:
+            website_entry.delete(0, END)
+            password_entry.delete(0, END)
 
 
 
+############################# FILE SEARCH ############################
+def search():
+    try:
+        with open("data.json", "r") as data_file:
+            # Reading old data
+            data = json.load(data_file)
+            print(data["amazon"])
 
+            mail = "email"
+            pw = "password"
+            messagebox.showinfo(title="passwords", message= f" Email: {data[website_entry.get()][mail]} \n Password:"
+                                                            f" {data[website_entry.get()][pw]}")
 
+    except:
+        messagebox.showerror(title="Erroe", message="No passwords found with that naem ")
 
 
 
@@ -100,18 +120,19 @@ password_entry.grid(row=4, column=2)
 
 ##button
 
-def add_func():
-    file_save()
-    website_entry.delete(0, END)
-    password_entry.delete(0, END)
+# def add_func():
+#     file_save()
+#     website_entry.delete(0, END)
+#     password_entry.delete(0, END)
 
 
 generate_button = Button(text="Generate Password", command=pw_list)
 generate_button.grid(row=4, column=3)
-add_button = Button(text="Add",width=36, command=add_func)
+add_button = Button(text="Add",width=36, command=file_save)
 add_button.grid(row=5 ,column=2, columnspan=2)
 
-
+search_button = Button(text="Search", command=search)
+search_button.grid(row=2, column=4)
 
 
 
